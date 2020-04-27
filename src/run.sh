@@ -1,1 +1,1 @@
-qemu-system-i386 -cdrom isodir/myos.iso
+qemu-system-i386 -cdrom isodir/DomOS.iso

@@ -2,7 +2,7 @@ SOURCES=boot.o kernel.o
 CFLAGS=-std=gnu11 -ffreestanding -O2 -Wall -Wextra
 LDFLAGS=-T linker.ld
 ASFLAGS=-felf32
-OSNAME=myos
+OSNAME=DomOS
 OSFILE=$(OSNAME).bin
 .SUFFIXES: .o .c .asm
 
