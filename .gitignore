@@ -1,7 +1,6 @@
-.iso
-.bin
-
-
+*.iso
+*.bin
+src/isodir*
 
 #Github's C gitignore
 # Prerequisites
