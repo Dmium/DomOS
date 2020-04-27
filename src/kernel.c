@@ -45,19 +45,37 @@ void moveRight() {
         x++;
     }
 }
-
-void putchar(char toPut) {
-    VGA_START[(y * VGA_WIDTH + x)] = charToEntry(toPut,(uint8_t)0x0f);
-    x++;
+void newline() {
+    x = 0;
+    moveDown();
+}
+void putchar(char c) {
+    if (c == '\n'){
+        newline();
+    } else {
+        VGA_START[(y * VGA_WIDTH + x)] = charToEntry(c, (uint8_t)0x0f);
+        x++;
+    }
 }
 
 void clear() {
     for (size_t cy = 0; cy < VGA_HEIGHT; cy++) {
 		for (size_t cx = 0; cx < VGA_WIDTH; cx++) {
 			const size_t index = cy * VGA_WIDTH + cx;
-			VGA_START[index] = charToEntry(' ',(uint8_t)0x0f);
+			VGA_START[index] = charToEntry(' ', (uint8_t)0x0f);
 		}
 	}
+}
+
+void print(char* str) {
+    while(*str != '\0') {
+        putchar(*str);
+        str++;
+    }
+}
+void println(char* str) {
+    print(str);
+    putchar('\n');
 }
 
 void kernel_main(void) {
@@ -67,6 +85,8 @@ void kernel_main(void) {
     putchar('l');
     putchar('l');
     putchar('o');
-    putchar('!');
-    return;
+    // putchar('!');
+    println(" World!");
+    print("Welcome to DomOS\n");
+    print("\n\nIt looks like this works :)");
 }
