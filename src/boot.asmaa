@@ -11,7 +11,7 @@ MBOOT_HEADER_FLAGS  equ MBOOT_PAGE_ALIGN | MBOOT_MEM_INFO
 MBOOT_CHECKSUM      equ -(MBOOT_HEADER_MAGIC + MBOOT_HEADER_FLAGS)
 
 
-[BITS 32]                       ; All instructions should be 32-bit.
+; [BITS 32]                       ; All instructions should be 32-bit
 section .multiboot
 
 multiboot:
@@ -28,13 +28,16 @@ resb 16384 ; 16 KiB
 stack_top:
 
 section .text
-[GLOBAL _start]
+global _start:function (_start.end - _start)
 _start:
     mov esp, stack_top
+    ; cli
     extern kernel_main
-    cli
     call kernel_main
-    ;   call kernel_main
     cli
+.hang:
     hlt
-    jmp $ ;Infinite loop after kernel run
+	jmp .hang
+    ; ;   call kernel_main
+    ; jmp $ ;Infinite loop after kernel run
+.end:
