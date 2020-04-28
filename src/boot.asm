@@ -29,6 +29,10 @@ gdt_code:
 resb 8
 gdt_data:
 resb 8
+gdt_user_code:
+resb 8
+gdt_user_data:
+resb 8
 gdt_end:
 
 section .data
@@ -46,6 +50,8 @@ _start:
 
     cli ; No Interrupts during gdt things
     ;push gdt pointers to stack
+    push gdt_user_data
+    push gdt_user_code
     push gdt_data
     push gdt_code
     push gdt_null

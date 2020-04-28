@@ -68,13 +68,13 @@ uint64_t create_descriptor(uint32_t base, uint32_t limit, uint16_t flag)
     return descriptor;
 }
  
-void gdt_setup(uint64_t* nullentry, uint64_t* codeentry, uint64_t* dataentry)
+void gdt_setup(uint64_t* nullentry, uint64_t* codeentry, uint64_t* dataentry, uint64_t* usercodeentry, uint64_t* userdataentry)
 {
     *(nullentry) = create_descriptor(0, 0, 0);
     *(codeentry) = create_descriptor(0, 0x000FFFFF, (GDT_CODE_PL0));
     *(dataentry) = create_descriptor(0, 0x000FFFFF, (GDT_DATA_PL0));
-    // create_descriptor(0, 0x000FFFFF, (GDT_CODE_PL3));
-    // create_descriptor(0, 0x000FFFFF, (GDT_DATA_PL3));
+    *(usercodeentry) = create_descriptor(0, 0x000FFFFF, (GDT_CODE_PL3));
+    *(userdataentry) = create_descriptor(0, 0x000FFFFF, (GDT_DATA_PL3));
 }
 
 
