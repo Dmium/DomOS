@@ -22,6 +22,35 @@ typedef enum {
 	VGA_COLOR_WHITE = 15,
 } vga_color;
 
+char* itoa(int value, char* str, int base) {
+    int i = 0;
+    int cbase = base;
+    char digit;
+    while (value > 0) {
+        digit = ((value % cbase) / (cbase/base)) + 48;
+        if (digit > 57){
+            digit += 7;
+        }
+        str[i] = digit;
+        value -= value % cbase;
+        cbase *= base;
+        i++;
+    }
+    char fstring[i];
+    for (int j = 1; j <= i; j ++) {
+        fstring[j - 1] = str[i - j];
+    }
+    for (int j = 0; j <= i; j++) {
+        str[j] = fstring[j];
+    }
+    if(i == 0){
+        str[0] = '0';
+        i++;
+    }
+    str[i] = 0;// Null byte (To end string)
+    return str;
+}
+
 // The great VGA number (Memory location) 0xB8000
 static uint16_t* VGA_START = (uint16_t*)0xB8000;
 static const size_t VGA_MAX_WIDTH = 80;
@@ -38,7 +67,7 @@ uint16_t charToEntry(char c, uint8_t color) {
 }
 
 void unbuffered_scroll() {
-    for (size_t cy = 0; cy < (VGA_max_HEIGHT - 1); cy++) {
+    for (size_t cy = 0; cy < (VGA_max_HEIGHT); cy++) {
 		for (size_t cx = 0; cx < VGA_MAX_WIDTH; cx++) {
 			const size_t index = cy * VGA_MAX_WIDTH + cx;
 			VGA_START[index] = VGA_START[index + VGA_MAX_WIDTH];
@@ -79,7 +108,7 @@ void putchar(char c, uint8_t colors) {
         newline();
     } else {
         VGA_START[(y * VGA_MAX_WIDTH + x)] = charToEntry(c, colors);
-        x++;
+        moveRight();
     }
 }
 
@@ -91,6 +120,8 @@ void clear(vga_color backgroundColor) {
 			VGA_START[index] = charToEntry(' ', colors);
 		}
 	}
+    x = 0;
+    y = 0;
 }
 
 void color_print(char* str, vga_color backgroundColor, vga_color foregroundColor) {
@@ -134,4 +165,10 @@ void kernel_main(void) {
     kernel_print("Welcome to ");
     color_print("DomOS\n", VGA_COLOR_BLACK, VGA_COLOR_LIGHT_MAGENTA);
     kernel_error_println("This is a test error print");
+    int x = charToEntry('H', get_colors(VGA_COLOR_BROWN, VGA_COLOR_LIGHT_MAGENTA));
+    char str[30];
+    itoa(x, str, 10); 
+    kernel_error_println(str);
+    asm("int $0x6");
+    kernel_println("Back in Kernel");
 }
