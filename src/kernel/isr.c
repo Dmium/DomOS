@@ -1,8 +1,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "kernel.h"
-#include "idt_prep.h"
-#include "io.h"
+#include "../cpu/idt_prep.h"
+#include "../cpu/io.h"
 
 // TODO Cleanup and handle nicer.
 static int timer = 0;

@@ -1,4 +1,4 @@
-%include "constants.asm"
+%include "boot/constants.asm"
 
 
 isr_asm_call:

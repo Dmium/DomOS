@@ -1,6 +1,6 @@
 ; A20 Set by GRUB (Do I test anyway? idek how I would know I'm successfully enabling it without a test env)
-%include "constants.asm"
-%include "interrupt.asm"
+%include "boot/constants.asm"
+%include "kernel/interrupt.asm"
 ; KERNEL_CS           equ 0x08
 ; KERNEL_DS           equ 0x10
 
