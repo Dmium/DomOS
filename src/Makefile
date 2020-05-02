@@ -1,4 +1,4 @@
-SOURCES=boot/boot.o kernel/kernel.o cpu/gdt_handler.o kernel/isr.o cpu/idt_prep.o cpu/io.o
+SOURCES=boot/boot.o kernel/kernel.o cpu/gdt_handler.o kernel/isr.o cpu/idt_prep.o cpu/io.o cpu/interrupt.o
 CFLAGS=-std=gnu11 -ffreestanding -O2 -Wall -Wextra
 LDFLAGS=-T linker.ld
 ASFLAGS=-felf32
@@ -16,6 +16,9 @@ all: $(SOURCES) link
 clean:
 	-rm -r isodir
 	-rm *.o $(OSFILE)
+	-rm boot/*.o
+	-rm cpu/*.o
+	-rm kernel/*.o
 	-rm -r isodir/boot
 
 link:
