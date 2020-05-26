@@ -1,4 +1,4 @@
-SOURCES=boot/boot.o kernel/kernel.o cpu/gdt_handler.o kernel/isr.o cpu/idt_prep.o cpu/io.o cpu/interrupt.o
+SOURCES=boot/boot.o kernel/kernel.o cpu/gdt_handler.o drivers/keyboard.o kernel/isr.o kernel/shell.o kernel/string.o cpu/idt_prep.o cpu/io.o cpu/interrupt.o
 CFLAGS=-std=gnu11 -ffreestanding -O2 -Wall -Wextra
 LDFLAGS=-T linker.ld
 ASFLAGS=-felf32
