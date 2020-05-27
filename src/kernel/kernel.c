@@ -155,6 +155,10 @@ void clear(vga_color backgroundColor) {
     y = 0;
 }
 
+void terminal_clear() {
+    clear(VGA_COLOR_BLACK);
+}
+
 void color_print(char* str, vga_color backgroundColor, vga_color foregroundColor) {
     uint8_t colors = get_colors(backgroundColor, foregroundColor);
     while(*str != '\0') {
@@ -182,6 +186,15 @@ void kernel_error_print(char* str) {
 
 void kernel_error_println(char* str) {
     color_println(str, VGA_COLOR_BLACK, VGA_COLOR_LIGHT_RED);
+}
+
+
+void kernel_success_print(char* str) {
+    color_println(str, VGA_COLOR_BLACK, VGA_COLOR_LIGHT_GREEN);
+}
+
+void kernel_success_println(char* str) {
+    color_println(str, VGA_COLOR_BLACK, VGA_COLOR_LIGHT_GREEN);
 }
 
 void kernel_backspace(){

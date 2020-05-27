@@ -3,6 +3,7 @@
 
 #include "string.h"
 #include "kernel.h"
+#include "tests.h"
 
 static char input_buffer[2048];
 static int writer = 0;
@@ -12,13 +13,16 @@ void parse_and_execute() {
     kernel_println("");
     if (strcmp(input_buffer, "hi")) {
         kernel_println("Hello");
-    }else if (strcmp(input_buffer, "help")) {
+    } else if (strcmp(input_buffer, "help")) {
         kernel_println("Help");
         kernel_println("--------------------");
         kernel_println("Available Commands:");
         kernel_println("-help");
         kernel_println("-hi");
+        kernel_println("-test");
         kernel_println("--------------------");
+    } else if (strcmp(input_buffer, "test")) {
+        test_all();
     } else {
         kernel_println("Unknown Command");
     }
