@@ -1,6 +1,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../cpu/io.h"
+
 
 // The possible background and forground colors
 typedef enum {
@@ -84,7 +86,7 @@ void terminal_scroll() {
 }
 
 void moveDown() {
-    if (y == VGA_max_HEIGHT){
+    if (y + 1 == VGA_max_HEIGHT){
         terminal_scroll();
     } else {
         y++;
@@ -99,10 +101,38 @@ void moveRight() {
         x++;
     }
 }
+
+void moveUp() {
+    x = VGA_MAX_WIDTH;
+    if (y == 0) {
+        //TODO scroll backwards
+    } else {
+        y--;
+    }
+}
+
+void moveLeft() {
+    if (x == 0) {
+        moveUp();
+    } else {
+        x--;
+    }
+}
+
 void newline() {
     x = 0;
     moveDown();
 }
+
+void update_cursor(int x, int y){
+	uint16_t pos = y * VGA_MAX_WIDTH + x;
+ 
+	outb(0x3D4, 0x0F);
+	outb(0x3D5, (uint8_t) (pos & 0xFF));
+	outb(0x3D4, 0x0E);
+	outb(0x3D5, (uint8_t) ((pos >> 8) & 0xFF));
+}
+
 void putchar(char c, uint8_t colors) {
     if (c == '\n'){
         newline();
@@ -110,6 +140,7 @@ void putchar(char c, uint8_t colors) {
         VGA_START[(y * VGA_MAX_WIDTH + x)] = charToEntry(c, colors);
         moveRight();
     }
+    update_cursor(x, y);
 }
 
 void clear(vga_color backgroundColor) {
@@ -151,6 +182,13 @@ void kernel_error_print(char* str) {
 
 void kernel_error_println(char* str) {
     color_println(str, VGA_COLOR_BLACK, VGA_COLOR_LIGHT_RED);
+}
+
+void kernel_backspace(){
+    moveLeft();
+    kernel_print(" ");
+    moveLeft();
+    update_cursor(x,y);
 }
 
 void kernel_main(void) {

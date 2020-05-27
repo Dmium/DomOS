@@ -12,6 +12,13 @@ void parse_and_execute() {
     kernel_println("");
     if (strcmp(input_buffer, "hi")) {
         kernel_println("Hello");
+    }else if (strcmp(input_buffer, "help")) {
+        kernel_println("Help");
+        kernel_println("--------------------");
+        kernel_println("Available Commands:");
+        kernel_println("-help");
+        kernel_println("-hi");
+        kernel_println("--------------------");
     } else {
         kernel_println("Unknown Command");
     }
@@ -23,6 +30,12 @@ void putc(char c) {
         input_buffer[writer] = 0;
         writer = 0;
         parse_and_execute();
+    } else if (c == '\b'){
+        if (writer > 0) {
+            writer--;
+            input_buffer[writer] = 0;
+            kernel_backspace();
+        }
     } else {
         char str[2] = {c, 0};
         kernel_print(str);
