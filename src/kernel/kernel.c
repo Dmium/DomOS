@@ -2,7 +2,11 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "../cpu/io.h"
-
+#include "multiboot.h"
+extern uint32_t _end_kernel;
+static void* end_kernel;
+static void* end_memory;
+static void* first_frame;
 
 // The possible background and forground colors
 typedef enum {
@@ -181,7 +185,7 @@ void kernel_println(char* str) {
 }
 
 void kernel_error_print(char* str) {
-    color_println(str, VGA_COLOR_BLACK, VGA_COLOR_LIGHT_RED);
+    color_print(str, VGA_COLOR_BLACK, VGA_COLOR_LIGHT_RED);
 }
 
 void kernel_error_println(char* str) {
@@ -190,7 +194,7 @@ void kernel_error_println(char* str) {
 
 
 void kernel_success_print(char* str) {
-    color_println(str, VGA_COLOR_BLACK, VGA_COLOR_LIGHT_GREEN);
+    color_print(str, VGA_COLOR_BLACK, VGA_COLOR_LIGHT_GREEN);
 }
 
 void kernel_success_println(char* str) {
@@ -220,6 +224,89 @@ void kernel_main(void) {
     char str[30];
     itoa(x, str, 10); 
     kernel_error_println(str);
-    asm("int $0x6");
+    // asm("int $0x6");
     kernel_println("Back in Kernel");
+    // kernel_println("Start Memory: ");
+    // x = ((uint32_t)&_end_kernel) >> 28;
+    // itoa(x, str, 16);
+    // kernel_error_println(str);
+    // x = ((uint32_t)&_end_kernel) & 0x0FFFFFFF;
+    // itoa(x, str, 16);
+    // kernel_error_println(str);
+    // kernel_println("End Memory: ");
+    // x = ((uint32_t)end_memory) >> 28;
+    // itoa(x, str, 16);
+    // kernel_error_println(str);
+    // x = ((uint32_t)end_memory) & 0x0FFFFFFF;
+    // itoa(x, str, 16);
+    // kernel_error_println(str);
+    // uint32_t* mem = (uint32_t*)&_end_kernel;
+    // while((uint32_t)mem < (uint32_t)end_memory) {
+    //     *mem = 0xFFFFFFFF;
+    //     mem += sizeof(uint32_t);
+    // }
+
+    kernel_error_println("Setting up paging");
+}
+
+
+typedef struct temp_multiboot_memory_map {
+	unsigned int size;
+	unsigned int base_addr_low,base_addr_high;
+// You can also use: unsigned long long int base_addr; if supported.
+	unsigned int length_low,length_high;
+// You can also use: unsigned long long int length; if supported.
+	unsigned int type;
+} temp_multiboot_memory_map_t;
+ 
+// this is really an entry, not the entire map.
+typedef temp_multiboot_memory_map_t temp_mmap_entry_t;
+
+
+void mboot_data(multiboot_info_t* mbd) {
+    // terminal_clear(VGA_COLOR_BLACK);
+    // Set the end of kernel pointer (Beginning of free memory)
+    end_kernel = &_end_kernel;
+    first_frame = end_kernel + (4096 * 2);
+
+    // Find the largest free entry (For now we take the largest free entry and hope it contains the kernel)
+    // TODO: Check entry contains kernel and if not then designate the entire entry as free
+    // TODO: Use other ram that's allegidly free
+    // TODO: Figure out what's up with the randomly overlapping areas
+    // TODO: Deal with RAM bigger than 4GB
+    // Note: This seems to work fine with 16GB in qemu. Unsure about less standard environments.
+    temp_mmap_entry_t* maxentry;
+    uint32_t maxlength = 0;
+    temp_mmap_entry_t* entry = (temp_mmap_entry_t*)mbd->mmap_addr;
+	while((uint32_t)entry < mbd->mmap_addr + mbd->mmap_length) {
+		entry = (temp_mmap_entry_t*) ((unsigned int) entry + entry->size + sizeof(entry->size));
+
+        if (entry->type == 1) {
+            if (entry->length_high > (uint32_t)0) {
+                // kernel_println("Big boi");
+                if (entry->base_addr_high > (uint32_t)0) {
+                    // kernel_println("Address is above 4GB");
+                }
+                // RAM section is larger than 4GB (And so we should just use some of it
+                //(ideally 4GB of it within 32bit address space)
+            }
+            if (maxlength == 0 || maxlength < entry->length_low) {
+                maxentry = entry;
+                maxlength = entry->length_low;
+            }
+        }
+	}
+    if (maxlength > 0) {
+        // char str[25];
+        end_memory = (void*)(maxentry->base_addr_low + maxentry->length_low);
+        // int x = ((uint32_t)maxlength) >> 28;
+        // itoa(x, str, 16);
+        // kernel_error_println("Max Length");
+        // kernel_error_println(str);
+        // x = ((uint32_t)maxlength) & 0x0FFFFFFF;
+        // itoa(x, str, 16);
+        // kernel_error_println(str);
+    } else {
+        // kernel_error_println("Well that went poorly");
+    }
 }

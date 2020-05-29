@@ -29,4 +29,6 @@ SECTIONS
 		*(COMMON)
 		*(.bss)
 	}
+    . = ALIGN(4K);
+    _end_kernel = . ;
 }

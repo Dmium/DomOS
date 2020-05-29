@@ -47,6 +47,7 @@ idt_end:
 
 
 
+
 section .data
 align 4096
 ;TODO Should I put the descriptors in .bss and set them .text? May make paging easier
@@ -63,6 +64,11 @@ section .text
 [GLOBAL _start]
 _start:
     mov esp, stack_top ;Nice to have a stack pointer point at the stack
+    ; push ebx
+    ; push eax
+    extern mboot_data
+    push ebx
+    call mboot_data
     extern kernel_main
     extern gdt_setup
     extern initIDT

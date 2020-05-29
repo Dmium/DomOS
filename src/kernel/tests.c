@@ -28,6 +28,12 @@ void test_itoa() {
     assert_true("itoa can translate '0x1F43' with base 16", strcmp(itoaoutput, "1F43"));
     itoa(0b1001, itoaoutput, 2);
     assert_true("itoa can translate '0b1001' with base 2", strcmp(itoaoutput, "1001"));
+    itoa(0x1001F43, itoaoutput, 16);
+    assert_true("itoa can translate '0x1001F43' with base 16", strcmp(itoaoutput, "1001F43"));
+    itoa(0xF001F43, itoaoutput, 16);
+    assert_true("itoa can translate '0xF001F43' with base 16", strcmp(itoaoutput, "F001F43"));
+    itoa(0xFFFFFFF, itoaoutput, 16);
+    assert_true("itoa can translate '0xFFFFFFF with base 16", strcmp(itoaoutput, "FFFFFFF"));
     kernel_println("----------------------------------------");
 }
 
