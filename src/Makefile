@@ -4,6 +4,7 @@ LDFLAGS=-T linker.ld
 ASFLAGS=-felf32
 OSNAME=DomOS
 OSFILE=$(OSNAME).bin
+MKRESCUE ?= grub-mkrescue
 .SUFFIXES: .o .c .asm
 
 all: $(SOURCES) link
@@ -11,7 +12,7 @@ all: $(SOURCES) link
 	-mkdir -p isodir/boot/grub
 	cp $(OSFILE) isodir/boot/$(OSFILE)
 	cp grub.cfg isodir/boot/grub/grub.cfg
-	grub-mkrescue -o isodir/$(OSNAME).iso isodir
+	$(MKRESCUE) -o isodir/$(OSNAME).iso isodir
 
 clean:
 	-rm -r isodir
