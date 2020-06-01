@@ -47,10 +47,14 @@ void irq_handler(registers_t* regs){
     }
 }
 void isr_handler(registers_t* regs){
-    char idstr[13];
+    char idstr[100];
     if(regs->interruptID <= 31){
-        kernel_println("Interrupt");
+        // kernel_println("Interrupt");
         itoa(regs->interruptID, idstr, 10);
-        kernel_println(idstr);
+        // kernel_println(idstr);
+        if (regs->interruptID == 14) {
+            itoa(regs->err_code, idstr, 10);
+            kernel_println(idstr);
+        }
     }
 }

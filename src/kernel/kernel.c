@@ -3,6 +3,9 @@
 #include <stdint.h>
 #include "../cpu/io.h"
 #include "multiboot.h"
+#include "paging.h"
+
+extern uint32_t _start_kernel;
 extern uint32_t _end_kernel;
 static void* end_kernel;
 static void* end_memory;
@@ -208,7 +211,7 @@ void kernel_backspace(){
     update_cursor(x,y);
 }
 
-void kernel_main(void) {
+uint32_t kernel_main(void) {
     clear(VGA_COLOR_BLACK);
     kernel_println(" ____                        _____   ____");
     kernel_println("/\\  _`\\                     /\\  __`\\/\\  _`\\");
@@ -226,13 +229,14 @@ void kernel_main(void) {
     kernel_error_println(str);
     // asm("int $0x6");
     kernel_println("Back in Kernel");
-    // kernel_println("Start Memory: ");
-    // x = ((uint32_t)&_end_kernel) >> 28;
-    // itoa(x, str, 16);
-    // kernel_error_println(str);
-    // x = ((uint32_t)&_end_kernel) & 0x0FFFFFFF;
-    // itoa(x, str, 16);
-    // kernel_error_println(str);
+    kernel_println("Kernel Size: ");
+    uint32_t y = (uint32_t)&_end_kernel - (uint32_t)&_start_kernel;
+    x = (y) >> 28;
+    itoa(x, str, 16);
+    kernel_error_println(str);
+    x = (y) & 0x0FFFFFFF;
+    itoa(x, str, 16);
+    kernel_error_println(str);
     // kernel_println("End Memory: ");
     // x = ((uint32_t)end_memory) >> 28;
     // itoa(x, str, 16);
@@ -245,8 +249,8 @@ void kernel_main(void) {
     //     *mem = 0xFFFFFFFF;
     //     mem += sizeof(uint32_t);
     // }
-
-    kernel_error_println("Setting up paging");
+    setup_paging(first_frame, &_start_kernel, &_end_kernel);
+    return (uint32_t)first_frame;
 }
 
 
@@ -267,7 +271,7 @@ void mboot_data(multiboot_info_t* mbd) {
     // terminal_clear(VGA_COLOR_BLACK);
     // Set the end of kernel pointer (Beginning of free memory)
     end_kernel = &_end_kernel;
-    first_frame = end_kernel + (4096 * 2);
+    first_frame = (void*)((uint32_t)&_end_kernel);// + 8192);
 
     // Find the largest free entry (For now we take the largest free entry and hope it contains the kernel)
     // TODO: Check entry contains kernel and if not then designate the entire entry as free
@@ -309,4 +313,9 @@ void mboot_data(multiboot_info_t* mbd) {
     } else {
         // kernel_error_println("Well that went poorly");
     }
+}
+
+void remap_VGA() {
+    // VGA_START = (uint16_t*)0xB8000;
+    kernel_error_println("Paging complete");
 }

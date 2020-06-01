@@ -92,15 +92,25 @@ _start:
     push idt_start
     call initIDT
     lidt [idtr_prep]
-    sti ; Resume
     call kernel_main
+
+    mov cr3, eax
+    mov eax, cr0
+    or eax, 0x80000001
+    mov cr0, eax
+    ; hlt
     ; push 5
     ; push 5
     ; push 5
     ; int 0xE
-    int 0x3
+    ; int 0x3
     ;   call kernel_main
-    ; cli
+    lea eax, [paged+0xC0000000]
+    jmp eax
+paged:
+    extern remap_VGA
+    call remap_VGA
+    sti
     jmp halt
 halt:
     ; cli
