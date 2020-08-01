@@ -10,6 +10,22 @@ extern uint32_t _end_kernel;
 static void* end_kernel;
 static void* end_memory;
 static void* first_frame;
+typedef union page_directory_entry{
+    uint32_t i;
+    struct s {
+        uint32_t P: 1;
+        uint32_t R: 1;
+        uint32_t U: 1;
+        uint32_t W: 1;
+        uint32_t D: 1;
+        uint32_t A: 1;
+        uint32_t zero: 1;
+        uint32_t S: 1;
+        uint32_t G: 1;
+        uint32_t avail: 2;
+        uint32_t addr: 20;
+    } __attribute__((packed)) s;
+} page_directory_entry;
 
 // The possible background and forground colors
 typedef enum {
@@ -211,6 +227,18 @@ void kernel_backspace(){
     update_cursor(x,y);
 }
 
+void kernel_print_addr(uint32_t addr) {
+    int left = (addr >> 16) & 0xFFFF;
+    int right = addr & 0xFFFF;
+    char temp[12];
+    char str[12];
+    itoa(left, temp, 16);
+    itoa(right, str, 16);
+    kernel_println(temp);
+    kernel_println(str);
+}
+
+
 uint32_t kernel_main(void) {
     clear(VGA_COLOR_BLACK);
     kernel_println(" ____                        _____   ____");
@@ -315,7 +343,84 @@ void mboot_data(multiboot_info_t* mbd) {
     }
 }
 
+
 void remap_VGA() {
     // VGA_START = (uint16_t*)0xB8000;
+    char str[33];
     kernel_error_println("Paging complete");
+    // kernel_println("PageDir0: ");
+    // itoa((*((uint32_t*)0xC0000000)) >> 16, str, 2);
+    // kernel_println(str);
+    // itoa((*((uint32_t*)0xC0000000)) & 0xFFFF, str, 2);
+    // kernel_println(str);
+
+
+
+
+    //Yeet
+    // *((uint32_t*)0xC0000000) = 0x00000002;
+    uint32_t* page_directory = ((uint32_t*)0xC0000000);
+    // while(0 == 0) {
+    // }
+    page_directory[0] = 0x00000002;
+    kernel_println("VGA: ");
+    itoa(*((uint16_t*)0xB8000), str, 2);
+    kernel_println(str);
+    // kernel_println("VGA Virt: ");
+    // itoa(*((uint32_t*)0), str, 2);
+    // kernel_println(str);
+
+
+    kernel_println("PD2: ");
+    itoa(VGA_START, str, 16);
+    kernel_println(str);
+    page_directory_entry pde;
+    int i = 0;
+    while(i < 1024) {
+        pde = (page_directory_entry)page_directory[i];
+        // kernel_print("P: ");
+        // itoa(pde.s.P, str, 2);
+        // kernel_println(str);
+        // kernel_print("R: ");
+        // itoa(pde.s.R, str, 2);
+        // kernel_println(str);
+        // kernel_print("U: ");
+        // itoa(pde.s.U, str, 2);
+        // kernel_println(str);kernel_print("A: ");
+        // itoa(pde.s.A, str, 2);
+        // kernel_println(str);
+        if(pde.s.P == 1) {
+            kernel_print("Index: ");
+            itoa(i, str, 10);
+            kernel_println(str);
+            kernel_print("Addr: ");
+            itoa(pde.s.addr << 11, str, 16);
+            kernel_println(str);
+        }
+        i++;
+    }
+    uint32_t* page_table = (uint32_t*)0xC0001000;
+    kernel_print("Page Tables: ");
+    i = 0;
+    while(i < 1024) {
+        page_directory_entry pt = (page_directory_entry)page_table[i];
+        if(pt.s.P == 1) {
+            kernel_print("Index: ");
+            itoa(i, str, 10);
+            kernel_println(str);
+            kernel_print("Addr: ");
+            itoa(pt.s.addr << 11, str, 16);
+            kernel_println(str);
+        }
+        i++;
+    }
+    // page_table[2] = ((uint32_t)0xB9000) | 0b11;
+    // uint16_t* VGA_STARTX = (uint16_t*)0xC00B8000;
+    // //VGA_START = (uint16_t*)0xC00B8000;
+    // terminal_clear(VGA_COLOR_BLACK);
+    // kernel_error_println("test");
+    // VGA_STARTX[(y * VGA_MAX_WIDTH + x)] = charToEntry('x', get_colors(VGA_COLOR_BLACK, VGA_COLOR_CYAN));
+    // moveRight();
+    // kernel_print_addr((uint32_t)VGA_START);
+    // kernel_print_addr((uint32_t)VGA_STARTX);
 }

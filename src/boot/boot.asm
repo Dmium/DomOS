@@ -86,8 +86,7 @@ _start:
     lgdt [gdt_desc]; Load our(painfully) setup gdt
 
     call reload_segments
-
-
+    
     ;;IDT Stuff
     push idt_start
     call initIDT
@@ -108,6 +107,12 @@ _start:
     lea eax, [paged+0xC0000000]
     jmp eax
 paged:
+    ; add ebp, 0xC0000000
+    ; add esp, 0xC0000000; Does this work? apparently not
+    ; push ds
+    ; extern kernel_print_addr
+    ; call kernel_print_addr
+    ; hlt
     extern remap_VGA
     call remap_VGA
     sti

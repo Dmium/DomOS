@@ -6,7 +6,7 @@
 #include "../drivers/keyboard.h"
 
 // TODO Cleanup and handle nicer.
-// static int timer = 0;
+static int timer = 0;
 void irq_handler(registers_t* regs){
     char idstr[13];
     if (regs->interruptID >= 8) {
@@ -49,9 +49,9 @@ void irq_handler(registers_t* regs){
 void isr_handler(registers_t* regs){
     char idstr[100];
     if(regs->interruptID <= 31){
-        // kernel_println("Interrupt");
+        kernel_println("Interrupt");
         itoa(regs->interruptID, idstr, 10);
-        // kernel_println(idstr);
+        kernel_println(idstr);
         if (regs->interruptID == 14) {
             itoa(regs->err_code, idstr, 10);
             kernel_println(idstr);

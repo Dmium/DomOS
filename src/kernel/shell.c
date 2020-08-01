@@ -23,6 +23,8 @@ void parse_and_execute() {
         kernel_println("--------------------");
     } else if (strcmp(input_buffer, "test")) {
         test_all();
+    } else if (strcmp(input_buffer, "pagevals")) {
+        kernel_print_addr((uint32_t)input_buffer);
     } else {
         kernel_println("Unknown Command");
     }

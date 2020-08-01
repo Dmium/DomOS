@@ -7,3 +7,4 @@ void kernel_success_print(char* str);
 void kernel_success_println(char* str);
 void terminal_clear();
 char* itoa(int, char*, int);
+void kernel_print_addr(uint32_t);
